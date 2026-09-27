@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Wolf Enrolls — Premium Card Enrolls</title>
+<style>
+  :root {
+    --bg:#0a0c10; --card:#14171d; --line:#232830; --txt:#e8eaee; --dim:#8a919c;
+    --gold:#c9a227; --gold2:#f0d060; --green:#22c55e;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+  html,body{width:100%;overflow-x:hidden}
+  body{min-height:100vh;background:radial-gradient(1200px 700px at 50% -15%,#1b2028 0%,var(--bg) 60%);
+       color:var(--txt);font:15px/1.5 -apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;padding:24px 14px 40px}
+  .wrap{max-width:960px;margin:0 auto;width:100%}
+
+  .hero{text-align:center;padding:20px 0 32px}
+  .wolf{width:110px;height:110px;margin:0 auto 12px;display:block;filter:drop-shadow(0 0 24px rgba(201,162,39,.35))}
+  .logo{font-size:32px;font-weight:800;letter-spacing:-.03em;
+        background:linear-gradient(135deg,var(--gold2),var(--gold));-webkit-background-clip:text;background-clip:text;
+        color:transparent;display:inline-block}
+  .tag{color:var(--dim);font-size:14px;margin-top:6px}
+  .badge{display:inline-block;margin-top:16px;padding:6px 14px;border:1px solid var(--line);border-radius:999px;
+         font-size:12px;color:var(--gold2);background:#11141a}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:20px;width:100%}
+  @media (max-width:340px){ .grid{grid-template-columns:1fr} }
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;transition:.2s;display:block}
+  .card:hover{border-color:#2f3742;transform:translateY(-2px)}
+
+  .visa{height:150px;border-radius:14px;padding:16px;display:flex;flex-direction:column;justify-content:space-between;
+        background:linear-gradient(135deg,#1a2740,#0f1725);border:1px solid #24314a;position:relative;overflow:hidden}
+  .visa.gold{background:linear-gradient(135deg,#3a2f0e,#1c1608);border-color:#4a3c12}
+  .visa.plat{background:linear-gradient(135deg,#2a2f38,#15181e);border-color:#3a414d}
+  .visa::after{content:"";position:absolute;inset:0;background:radial-gradient(400px 120px at 100% 0%,rgba(255,255,255,.08),transparent);pointer-events:none}
+  .chip{width:34px;height:26px;border-radius:6px;background:linear-gradient(135deg,#d8bd6a,#a8892f);box-shadow:inset 0 0 4px rgba(0,0,0,.4)}
+  .vlogo{position:absolute;bottom:14px;right:16px;font-weight:800;font-style:italic;font-size:22px;color:#fff;opacity:.9;z-index:1}
+  .bal{font-size:26px;font-weight:700;color:#fff}
+  .num{font:14px/1 ui-monospace,Menlo,monospace;letter-spacing:.12em;color:#cfd6e0;margin-top:6px}
+
+  .meta{display:flex;justify-content:space-between;align-items:baseline;margin:14px 0 12px;gap:8px}
+  .price{font-size:22px;font-weight:800;color:var(--gold2);white-space:nowrap}
+  .price small{font-size:12px;color:var(--dim);font-weight:400;margin-left:4px}
+  .tagline{font-size:12px;color:var(--dim);text-align:right}
+  .buy{width:100%;border:0;border-radius:12px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;
+       background:linear-gradient(135deg,var(--gold2),var(--gold));color:#1a1400;transition:.15s;font-family:inherit}
+  .buy:hover{filter:brightness(1.08)}
+  .buy:active{transform:scale(.98)}
+
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+           display:none;align-items:center;justify-content:center;padding:16px;z-index:50;overflow-y:auto}
+  .overlay.on{display:flex}
+  .modal{background:var(--card);border:1px solid var(--line);border-radius:20px;max-width:420px;width:100%;padding:22px;position:relative;margin:auto}
+  .close{position:absolute;top:12px;right:14px;background:none;border:0;color:var(--dim);font-size:24px;cursor:pointer;line-height:1;padding:4px 8px}
+  .modal h2{margin:0 0 4px;font-size:19px;padding-right:28px}
+  .modal .sub{color:var(--dim);font-size:13px;margin-bottom:18px}
+  .coins{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px}
+  .coin{border:1px solid var(--line);border-radius:10px;padding:10px 4px;text-align:center;cursor:pointer;background:#0f1217;transition:.15s}
+  .coin:hover{border-color:#2f3742}
+  .coin.sel{border-color:var(--gold);background:#171410}
+  .coin .sym{font-size:12px;font-weight:700;margin-top:6px;color:var(--dim)}
+  .coin.sel .sym{color:var(--gold2)}
+  .coin svg{width:22px;height:22px;display:block;margin:0 auto}
+  .addr{display:none;flex-direction:column;align-items:center;gap:12px}
+  .addr.on{display:flex}
+  .qr{background:#fff;padding:10px;border-radius:12px}
+  .qr img{display:block;width:180px;height:180px}
+  .addrbox{display:flex;gap:8px;width:100%}
+  .addrbox input{flex:1;background:#0f1217;border:1px solid var(--line);border-radius:10px;color:var(--txt);
+                 font:12px ui-monospace,Menlo,monospace;padding:10px;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  .copy{border:0;border-radius:10px;padding:0 14px;background:#222831;color:var(--txt);cursor:pointer;font-weight:600;font-family:inherit;font-size:13px}
+  .copy.ok{background:var(--green);color:#04140a}
+  .waiting{display:none;flex-direction:column;align-items:center;gap:14px;padding:20px 0}
+  .waiting.on{display:flex}
+  .spin{width:52px;height:52px;border-radius:50%;border:4px solid #232830;border-top-color:var(--gold2);animation:s 1s linear infinite}
+  @keyframes s{to{transform:rotate(360deg)}}
+  .waiting p{color:var(--dim);font-size:13px;text-align:center;margin:0}
+  .txcount{font:11px ui-monospace,Menlo,monospace;color:#4a515c;margin-top:4px;text-align:center}
+
+  .foot{text-align:center;color:#4a515c;font-size:12px;margin-top:34px}
+
+  #deliveryView{display:none;min-height:70vh;align-items:center;justify-content:center;width:100%}
+  #deliveryView.on{display:flex}
+  .deliveryBox{background:var(--card);border:1px solid var(--line);border-radius:22px;max-width:440px;width:100%;padding:30px 22px;text-align:center}
+  .check{width:70px;height:70px;border-radius:50%;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.4);
+         display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:32px;color:var(--green)}
+  .deliveryBox h1{margin:0 0 6px;font-size:22px}
+  .deliveryBox .sub{color:var(--dim);font-size:14px;margin-bottom:22px}
+  .panel{background:#0f1217;border:1px solid var(--line);border-radius:14px;padding:18px;text-align:left;margin-bottom:16px}
+  .row{display:flex;justify-content:space-between;padding:8px 0;font-size:13px;border-bottom:1px solid #1a1e25;gap:10px}
+  .row:last-child{border-bottom:0}
+  .row span:first-child{color:var(--dim)}
+  .row span:last-child{font-family:ui-monospace,Menlo,monospace;text-align:right;word-break:break-all}
+  .note{color:var(--dim);font-size:12px;margin-top:8px}
+  .btn{display:inline-block;margin-top:8px;padding:12px 22px;border-radius:12px;text-decoration:none;border:0;cursor:pointer;
+       background:linear-gradient(135deg,var(--gold2),var(--gold));color:#1a1400;font-weight:700;font-size:14px;font-family:inherit}
+  #shopView.hidden{display:none}
+</style>
+</head>
+<body>
+
+<div class="wrap" id="shopView">
+  <div class="hero">
+    <svg class="wolf" viewBox="0 0 100 100" fill="none">
+      <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#f0d060"/><stop offset="1" stop-color="#c9a227"/></linearGradient></defs>
+      <path d="M50 8 L78 26 L78 60 Q78 84 50 94 Q22 84 22 60 L22 26 Z" stroke="url(#g)" stroke-width="3" fill="#12151b"/>
+      <path d="M32 30 L30 20 L42 27 Z M68 30 L70 20 L58 27 Z" fill="url(#g)"/>
+      <circle cx="40" cy="52" r="3.4" fill="#f0d060"/>
+      <circle cx="60" cy="52" r="3.4" fill="#f0d060"/>
+      <path d="M50 62 L44 72 L56 72 Z" fill="#f0d060"/>
+      <path d="M42 80 Q50 86 58 80" stroke="#f0d060" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+    </svg>
+    <div class="logo">WOLF ENROLLS</div>
+    <div class="tag">Premium verified card enrolls · instant delivery</div>
+    <div class="badge">● LIVE STOCK</div>
+  </div>
+  <div class="grid" id="grid"></div>
+  <div class="foot">© Wolf Enrolls — all sales final</div>
+</div>
+
+<div class="wrap" id="deliveryView">
+  <div class="deliveryBox">
+    <div class="check">✓</div>
+    <h1>Payment Confirmed</h1>
+    <div class="sub">Your enroll is being prepared</div>
+    <div class="panel">
+      <div class="row"><span>Order</span><span id="ord">—</span></div>
+      <div class="row"><span>Status</span><span style="color:var(--green)">PROCESSING</span></div>
+      <div class="row"><span>ETA</span><span id="eta">—</span></div>
+      <div class="row"><span>Coin</span><span id="dvCoin">—</span></div>
+      <div class="row"><span>Amount</span><span id="dvAmt">—</span></div>
+    </div>
+    <p class="note" id="msg">You'll receive your card details here shortly. Keep this page open.</p>
+    <button class="btn" id="backBtn">Back to Shop</button>
+  </div>
+</div>
+
+<div class="overlay" id="ov">
+  <div class="modal">
+    <button class="close" id="cls">×</button>
+    <h2 id="mTitle">Checkout</h2>
+    <div class="sub" id="mSub"></div>
+
+    <div id="step1">
+      <div class="coins" id="coins">
+        <div class="coin" data-c="sol">
+          <svg viewBox="0 0 24 24"><defs><linearGradient id="sg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9945FF"/><stop offset="1" stop-color="#14F195"/></linearGradient></defs><path d="M6 17h11l-2.2 2.2H3.8z M6 11h11l-2.2 2.2H3.8z M6 5h11l-2.2 2.2H3.8z" fill="url(#sg)"/></svg>
+          <div class="sym">SOL</div>
+        </div>
+        <div class="coin" data-c="btc">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#f7931a"/><text x="12" y="17" font-size="14" font-weight="800" fill="#fff" text-anchor="middle" font-family="Arial">₿</text></svg>
+          <div class="sym">BTC</div>
+        </div>
+        <div class="coin" data-c="ltc">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#345d9d"/><text x="12" y="17" font-size="13" font-weight="800" fill="#fff" text-anchor="middle" font-family="Arial">Ł</text></svg>
+          <div class="sym">LTC</div>
+        </div>
+        <div class="coin" data-c="eth">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#627eea"/><path d="M12 4v6l5 2.5z M12 4L7 12.5 12 10z M12 16.5v3.5l5-7z M12 20v-3.5l-5-3.5z" fill="#fff" opacity=".9"/></svg>
+          <div class="sym">ETH</div>
+        </div>
+      </div>
+      <button class="buy" id="toPay" disabled>Select a coin</button>
+    </div>
+
+    <div class="addr" id="step2">
+      <div class="qr"><img id="qrImg" alt=""></div>
+      <div class="addrbox">
+        <input id="addrVal" readonly>
+        <button class="copy" id="copyBtn">Copy</button>
+      </div>
+      <p style="color:var(--dim);font-size:12px;text-align:center;margin:0" id="payNote"></p>
+    </div>
+
+    <div class="waiting" id="step3">
+      <div class="spin"></div>
+      <p id="waitText">Waiting for payment confirmation…<br>Do not close this window.</p>
+      <div class="txcount" id="txCount"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   CONFIG
+   ============================================================ */
+const ADDR = {
+  sol: "4k57rb38GEXb4guzc31NsxJr6REj3tBLgytbkKHpWvzW",
+  btc: "bc1q3qxwxdw3sfhv207zsg9yz8mf6se40lv5dppacc",
+  ltc: "ltc1qvu4t3t4x2cl5a3vzvqxuhtgw04pzqsn8my4085",
+  eth: "0xeA0ABc678804AC1E8927FC6ce29C4218fE3cd90d"
+};
+const NET = { sol:"Solana", btc:"Bitcoin", ltc:"Litecoin", eth:"Ethereum (ERC-20)" };
+const API = {
+  sol: () => `https://api.mainnet-beta.solana.com`,
+  btc: (a) => `https://blockchain.info/rawaddr/${a}?limit=5`,
+  ltc: (a) => `https://litecoinspace.org/api/address/${a}/txs`,
+  eth: (a) => `https://api.etherscan.io/api?module=account&action=tokentx&address=${a}&sort=desc&page=1&offset=5`
+};
+const LS_KEY = "wolf_enrolls_state";
+const baseline = {};
+
+/* ============================================================
+   INVENTORY — 0.18x multiplier
+   ============================================================ */
+const TIERS = [
+  {bal:500,   cls:""},
+  {bal:1000,  cls:""},
+  {bal:2500,  cls:""},
+  {bal:5000,  cls:"plat"},
+  {bal:7500,  cls:"plat"},
+  {bal:10000, cls:"gold"},
+  {bal:12000, cls:"gold"},
+];
+const CARDS = TIERS.map(t => ({
+  bal: t.bal, cls: t.cls,
+  price: Math.max(40, Math.round(t.bal * 0.18)),
+  last4: String(1000 + Math.floor(Math.random()*8999)).slice(-4),
+}));
+
+/* ============================================================
+   RENDER SHOP
+   ============================================================ */
+(function renderShop(){
+  const grid = document.getElementById("grid");
+  if(!grid) return;
+  grid.innerHTML = "";
+  CARDS.forEach(c => {
+    const el = document.createElement("div");
+    el.className = "card";
+    el.innerHTML = `
+      <div class="visa ${c.cls}">
+        <div class="chip"></div>
+        <div>
+          <div class="bal">$${c.bal.toLocaleString()}</div>
+          <div class="num">•••• •••• •••• ${c.last4}</div>
+        </div>
+        <div class="vlogo">VISA</div>
+      </div>
+      <div class="meta">
+        <div class="price">$${c.price}<small>USD</small></div>
+        <div class="tagline">Verified ·<br>ready to enroll</div>
+      </div>
+      <button class="buy" data-bal="${c.bal}" data-price="${c.price}">Buy Enroll</button>
+    `;
+    grid.appendChild(el);
+  });
+
+  document.querySelectorAll(".buy[data-bal]").forEach(b => {
+    b.addEventListener("click", () => {
+      selCard = { bal:+b.dataset.bal, price:+b.dataset.price };
+      selCoin = null;
+      document.querySelectorAll(".coin").forEach(c=>c.classList.remove("sel"));
+      toPay.disabled=true; toPay.textContent="Select a coin";
+      document.getElementById("mTitle").textContent = `$${selCard.bal.toLocaleString()} Visa Enroll`;
+      document.getElementById("mSub").textContent = `Total due: $${selCard.price} USD equivalent`;
+      showStep(1); ov.classList.add("on");
+    });
+  });
+})();
+
+/* ============================================================
+   STATE / VIEWS
+   ============================================================ */
+let selCoin=null, selCard=null, watchTimer=null;
+const ov=document.getElementById("ov"), step1=document.getElementById("step1"),
+      step2=document.getElementById("step2"), step3=document.getElementById("step3"),
+      toPay=document.getElementById("toPay");
+
+const shopView = document.getElementById("shopView");
+const deliveryView = document.getElementById("deliveryView");
+
+function showStep(n){
+  step1.style.display = n===1 ? "block":"none";
+  step2.classList.toggle("on", n===2);
+  step3.classList.toggle("on", n===3);
+}
+
+function showShop(){
+  shopView.classList.remove("hidden");
+  deliveryView.classList.remove("on");
+}
+
+function showDelivery(state){
+  shopView.classList.add("hidden");
+  deliveryView.classList.add("on");
+  document.getElementById("ord").textContent = state.order || "—";
+  document.getElementById("dvCoin").textContent = (state.coin || "").toUpperCase() || "—";
+  document.getElementById("dvAmt").textContent = state.price ? `$${state.price}` : "—";
+  const eta = new Date((state.ts || Date.now()) + 5*60*1000);
+  document.getElementById("eta").textContent =
+    eta.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
+}
+
+/* ============================================================
+   MODAL CONTROLS
+   ============================================================ */
+document.getElementById("cls").addEventListener("click", ()=>{
+  ov.classList.remove("on");
+  if(watchTimer){ clearInterval(watchTimer); watchTimer=null; }
+});
+
+document.querySelectorAll(".coin").forEach(c => {
+  c.addEventListener("click", () => {
+    document.querySelectorAll(".coin").forEach(x=>x.classList.remove("sel"));
+    c.classList.add("sel");
+    selCoin = c.dataset.c;
+    toPay.disabled=false; toPay.textContent = `Pay with ${selCoin.toUpperCase()}`;
+  });
+});
+
+/* ============================================================
+   CHECKOUT → WATCH
+   ============================================================ */
+toPay.addEventListener("click", async () => {
+  if(!selCoin || !selCard) return;
+  const addr = ADDR[selCoin];
+  document.getElementById("qrImg").src =
+    `https://api.qrserver.com/v1/create-qr-code/?size=360x360&data=${encodeURIComponent(addr)}`;
+  document.getElementById("addrVal").value = addr;
+  document.getElementById("payNote").textContent =
+    `Send exactly $${selCard.price} USD in ${selCoin.toUpperCase()} on ${NET[selCoin]}. Wrong network = lost funds.`;
+  showStep(2);
+  saveState({ status:"pending", coin:selCoin, addr, price:selCard.price, bal:selCard.bal, ts:Date.now() });
+  await takeBaseline(selCoin, addr);
+  startWatch(selCoin, addr);
+});
+
+/* ============================================================
+   COPY
+   ============================================================ */
+document.getElementById("copyBtn").addEventListener("click", async (e) => {
+  const v = document.getElementById("addrVal").value;
+  try{ await navigator.clipboard.writeText(v); }catch{
+    const inp = document.getElementById("addrVal");
+    inp.select(); document.execCommand("copy");
+  }
+  e.target.textContent="Copied"; e.target.classList.add("ok");
+  setTimeout(()=>{e.target.textContent="Copy";e.target.classList.remove("ok")},1500);
+});
+
+/* ============================================================
+   STORAGE
+   ============================================================ */
+function saveState(s){ try{ localStorage.setItem(LS_KEY, JSON.stringify(s)); }catch{} }
+function loadState(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)||"null"); }catch{ return null; } }
+function clearState(){ try{ localStorage.removeItem(LS_KEY); }catch{} }
+
+/* ============================================================
+   CHAIN WATCHERS
+   ============================================================ */
+async function takeBaseline(coin, addr){
+  try {
+    if(coin === "sol"){
+      const r = await fetch(API.sol(), {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({jsonrpc:"2.0",id:1,method:"getSignaturesForAddress",params:[addr,{limit:5}]})
+      });
+      const j = await r.json();
+      baseline[coin] = j?.result?.[0]?.signature || null;
+    } else if(coin === "btc"){
+      const r = await fetch(API.btc(addr));
+      const j = await r.json();
+      baseline[coin] = (j?.txs?.[0]?.hash) || null;
+    } else if(coin === "ltc"){
+      const r = await fetch(API.ltc(addr));
+      const j = await r.json();
+      baseline[coin] = (j?.[0]?.txid) || null;
+    } else if(coin === "eth"){
+      const r = await fetch(API.eth(addr));
+      const j = await r.json();
+      baseline[coin] = (j?.result?.[0]?.hash) || null;
+    }
+  } catch(e){ baseline[coin] = null; }
+}
+
+async function pollForPayment(coin, addr){
+  try {
+    if(coin === "sol"){
+      const r = await fetch(API.sol(), {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({jsonrpc:"2.0",id:1,method:"getSignaturesForAddress",params:[addr,{limit:5}]})
+      });
+      const j = await r.json();
+      const top = j?.result?.[0]?.signature;
+      if(top && top !== baseline[coin]) return true;
+    } else if(coin === "btc"){
+      const r = await fetch(API.btc(addr));
+      const j = await r.json();
+      const tx = j?.txs?.[0];
+      const inbound = tx?.out?.some(o => o.addr === addr && o.value > 0);
+      if(tx?.hash && tx.hash !== baseline[coin] && inbound) return true;
+    } else if(coin === "ltc"){
+      const r = await fetch(API.ltc(addr));
+      const j = await r.json();
+      const tx = j?.[0];
+      const inbound = tx?.vout?.some(v => v.scriptpubkey_address === addr);
+      if(tx?.txid && tx.txid !== baseline[coin] && inbound) return true;
+    } else if(coin === "eth"){
+      const r = await fetch(API.eth(addr));
+      const j = await r.json();
+      const top = j?.result?.[0]?.hash;
+      if(top && top !== baseline[coin]) return true;
+    }
+  } catch(e){}
+  return false;
+}
+
+function startWatch(coin, addr){
+  if(watchTimer) clearInterval(watchTimer);
+  let ticks = 0;
+  watchTimer = setInterval(async () => {
+    ticks++;
+    document.getElementById("txCount").textContent =
+      `checked ${ticks} time${ticks===1?"":"s"} · ${new Date().toLocaleTimeString()}`;
+    const hit = await pollForPayment(coin, addr);
+    if(hit){
+      clearInterval(watchTimer); watchTimer=null;
+      showStep(3);
+      document.getElementById("waitText").innerHTML =
+        "✅ Payment confirmed.<br>Preparing your enroll…";
+      const order = "WE-" + Math.random().toString(36).slice(2,8).toUpperCase();
+      const state = { status:"confirmed", order, coin, addr, price:selCard?.price, bal:selCard?.bal, ts:Date.now() };
+      saveState(state);
+      setTimeout(() => {
+        ov.classList.remove("on");
+        showDelivery(state);
+      }, 2000);
+    }
+  }, 15000);
+}
+
+/* ============================================================
+   BACK BUTTON
+   ============================================================ */
+document.getElementById("backBtn").addEventListener("click", () => {
+  clearState();
+  showShop();
+});
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+(function boot(){
+  const s = loadState();
+  if(!s){ showShop(); return; }
+  if(s.status === "confirmed"){
+    showDelivery(s);
+  } else if(s.status === "pending"){
+    selCard = { bal:s.bal, price:s.price };
+    selCoin = s.coin;
+    document.getElementById("qrImg").src =
+      `https://api.qrserver.com/v1/create-qr-code/?size=360x360&data=${encodeURIComponent(s.addr)}`;
+    document.getElementById("addrVal").value = s.addr;
+    document.getElementById("payNote").textContent =
+      `Send exactly $${s.price} USD in ${s.coin.toUpperCase()} on ${NET[s.coin]}. Wrong network = lost funds.`;
+    document.getElementById("mTitle").textContent = `$${(s.bal||0).toLocaleString()} Visa Enroll`;
+    document.getElementById("mSub").textContent = `Total due: $${s.price} USD equivalent`;
+    document.querySelectorAll(".coin").forEach(c => c.classList.toggle("sel", c.dataset.c === s.coin));
+    showStep(2);
+    ov.classList.add("on");
+    (async () => {
+      await takeBaseline(s.coin, s.addr);
+      startWatch(s.coin, s.addr);
+    })();
+  } else {
+    showShop();
+  }
+})();
+</script>
+</body>
+</html>
